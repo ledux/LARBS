@@ -6,10 +6,10 @@
 
 ### OPTIONS AND VARIABLES ###
 
-dotfilesrepo="https://github.com/lukesmithxyz/voidrice.git"
-progsfile="https://raw.githubusercontent.com/LukeSmithxyz/LARBS/master/static/progs.csv"
+dotfilesrepo="https://github.com/ledux/dotfiles.git"
+progsfile="https://raw.githubusercontent.com/ledux/LARBS/master/static/progs.csv"
 aurhelper="yay"
-repobranch="master"
+repobranch="main"
 export TERM=ansi
 
 ### FUNCTIONS ###
@@ -193,6 +193,19 @@ putgitrepo() {
 	sudo -u "$name" cp -rfT "$dir" "$2"
 }
 
+fetchconfigfiles() {
+	# Downloads the dotfiles into a bare repo. Then it deletes all already existing dotfiles 
+	# and checks out the files from the repo
+	whiptail --infobox "Downloading and installing config files..." 7 60
+	[ -z "$3" ] && branch="master" || branch="$repobranch"
+	configrepo="/home/$name/src/.dotfiles/"
+	alias configgit='/usr/bin/git --git-dir=$configrepo --work-tree=/home/$name'
+	echo ".dotfiles" >> .gitignore
+	sudo -u "$name" git clone --bare "$dotfilesrepo" "$configrepo"
+	configgit checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} rm {}
+	configgit checkout
+}
+
 vimplugininstall() {
 	# TODO remove shortcuts error message
 	# Installs vim plugins.
@@ -339,8 +352,9 @@ installationloop
 
 # Install the dotfiles in the user's home directory, but remove .git dir and
 # other unnecessary files.
-putgitrepo "$dotfilesrepo" "/home/$name" "$repobranch"
-rm -rf "/home/$name/.git/" "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
+# putgitrepo "$dotfilesrepo" "/home/$name" "$repobranch"
+# rm -rf "/home/$name/.git/" "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
+fetchconfigfiles
 
 # Install vim plugins if not alread present.
 [ ! -f "/home/$name/.config/nvim/autoload/plug.vim" ] && vimplugininstall
@@ -353,12 +367,14 @@ echo "blacklist pcspkr" >/etc/modprobe.d/nobeep.conf
 chsh -s /bin/zsh "$name" >/dev/null 2>&1
 sudo -u "$name" mkdir -p "/home/$name/.cache/zsh/"
 sudo -u "$name" mkdir -p "/home/$name/.config/mpd/playlists/"
+# install oh-my-zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # dbus UUID must be generated for Artix runit.
 # dbus-uuidgen >/var/lib/dbus/machine-id
 
 # Use system notifications for Brave on Artix
-echo "export \$(dbus-launch)" >/etc/profile.d/dbus.sh
+# echo "export \$(dbus-launch)" >/etc/profile.d/dbus.sh
 
 # Enable tap to click
 [ ! -f /etc/X11/xorg.conf.d/40-libinput.conf ] && printf 'Section "InputClass"
