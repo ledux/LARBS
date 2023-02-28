@@ -350,6 +350,9 @@ manualinstall yay || error "Failed to install AUR helper."
 # and all build dependencies are installed.
 installationloop
 
+# install oh-my-zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
 # Install the dotfiles in the user's home directory, but remove .git dir and
 # other unnecessary files.
 # putgitrepo "$dotfilesrepo" "/home/$name" "$repobranch"
@@ -367,8 +370,6 @@ echo "blacklist pcspkr" >/etc/modprobe.d/nobeep.conf
 chsh -s /bin/zsh "$name" >/dev/null 2>&1
 sudo -u "$name" mkdir -p "/home/$name/.cache/zsh/"
 sudo -u "$name" mkdir -p "/home/$name/.config/mpd/playlists/"
-# install oh-my-zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # dbus UUID must be generated for Artix runit.
 # dbus-uuidgen >/var/lib/dbus/machine-id
