@@ -351,7 +351,7 @@ manualinstall yay || error "Failed to install AUR helper."
 installationloop
 
 # install oh-my-zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
 # Install the dotfiles in the user's home directory, but remove .git dir and
 # other unnecessary files.
